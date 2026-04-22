@@ -40,6 +40,7 @@ metadata:
         containers:
         - name: catalogue
           image: ayyappavedavyas/catalogue:1.0.0
+          
           resources:
             requests:
               cpu: "100Mi"
@@ -47,6 +48,7 @@ metadata:
             limits:
               cpu: "100Mi"
               memory: "128Mi"
+
           readinessProbe:
             tcpSocket:
               port: 8080
@@ -55,7 +57,7 @@ metadata:
             #   port: 8080
             failureThreshold: 3
             periodSeconds: 10
-            intialDelaySeconds: 5
+            intialDelaySeconds: 15
           livenessProbe:
             httpGet:
               path: /health
