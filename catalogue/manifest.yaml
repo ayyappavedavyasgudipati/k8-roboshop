@@ -40,6 +40,29 @@ metadata:
         containers:
         - name: catalogue
           image: ayyappavedavyas/catalogue:1.0.0
+          resources:
+            requests:
+              cpu: "100Mi"
+              memory: "128Mi"
+            limits:
+              cpu: "100Mi"
+              memory: "128Mi"
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            # httpGet:
+            #   path: /health
+            #   port: 8080
+            failureThreshold: 3
+            periodSeconds: 10
+            intialDelaySeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            failureThreshold: 3
+            periodSeconds: 10
+
           envFrom:
           - configMapRef: 
             name: catalogue
