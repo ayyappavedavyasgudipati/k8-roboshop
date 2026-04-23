@@ -1,45 +1,45 @@
 apiVersion: apps/v1
 Kind: ConfigMap
 metadata:
-  name: catalogue
+  name: user
   namespace: roboshop
   labels:
     project: roboshop
     tier: backend
-    component: catalogue
+    component: user
 data:
-  MONGO: "true"
-  MONGO_URL: "mongodb://mongodb:27017/catalogue"
+  REDIS_URL: "redis://redis:6379"
+  MONGO_URL: "mongodb://mongodb:27017/users"
 
 ---
 
 apiVersion: apps/v1
 Kind: Deployment
 metadata:
-  name: catalogue
+  name: user
   namespace: roboshop
   labels:
     project: roboshop
     tier: backend
-    component: catalogue
+    component: user
   spec:
     replicas: 1
     selector:
       matchLabels:
         project: roboshop
         tier: backend
-        component: catalogue   
+        component: user   
 
     template:
       metadata:
         labels:
           project: roboshop
           tier: backend
-          component: catalogue   
+          component: user   
       spec:
         containers:
-        - name: catalogue
-          image: ayyappavedavyas/catalogue:1.0.0
+        - name: user
+          image: ayyappavedavyas/user:1.0.0
           imagePullPolicy: Always
           
           resources:
@@ -68,24 +68,24 @@ metadata:
 
           envFrom:
           - configMapRef: 
-            name: catalogue
+            name: user
 
 ---
 # cluster service
 apiVersion: apps/v1
 Kind: Service
 metadata:
-  name: catalogue
+  name: user
   namespace: roboshop
   labels:
     project: roboshop
     tier: backend
-    component: catalogue    
+    component: user    
 spec:
   selector: 
     project: roboshop
     tier: backend
-    component: catalogue
+    component: user
   ports:
   - protocol: TCP
     port: 8080 # service port

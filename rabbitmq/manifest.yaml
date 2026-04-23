@@ -1,12 +1,26 @@
 apiVersion: apps/v1
+Kind: ConfigMap
+metadata:
+  name: rabbitmq
+  namespace: roboshop
+  labels:
+    project: roboshop
+    tier: backend
+    component: rabbitmq
+data:
+  RABBITMQ_DEFAULT_USER: roboshop
+  RABBITMQ_DEFAULT_PASS: roboshop123
+---
+
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb
+  name: rabbitmq
   namespace: roboshop
   labels:
     project: roboshop
     tier: database
-    component: mongodb
+    component: rabbitmq
 
 spec:
   replicas: 1
@@ -14,35 +28,39 @@ spec:
     matchLabels:
       project: roboshop
       tier: database
-      component: mongodb
+      component: rabbitmq
 
   template:        
     metadata:
       labels:
         project: roboshop
         tier: database
-        component: mongodb
+        component: rabbitmq
     spec:
       containers:
-      - name: mongodb
-        image: ayyappavedavyas/mmongodb:1.0.0    
+      - name: rabbitmq
+        image: rabbitmq:3
+        envFrom:
+        - configMapRef:
+            name: rabbitmq 
+
         imagePullPolicy: Always
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb
+  name: rabbitmq
   namespace: roboshop
   labels:
     project: roboshop
     tier: database
-    component: mongodb
+    component: rabbitmq
 spec:
   selector:
     project: roboshop
     tier: database
-    component: mongodb
+    component: rabbitmq
   ports:
   - protocol: TCP
-    port: 27017
-    targetPort: 27017              
+    port: 5672
+    targetPort: 5672              

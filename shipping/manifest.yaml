@@ -1,54 +1,54 @@
 apiVersion: apps/v1
 Kind: ConfigMap
 metadata:
-  name: catalogue
+  name: shipping
   namespace: roboshop
   labels:
     project: roboshop
     tier: backend
-    component: catalogue
+    component: shipping
 data:
-  MONGO: "true"
-  MONGO_URL: "mongodb://mongodb:27017/catalogue"
+  CART_ENDPOINT: "cart:8080"
+  DB_HOST: "mysql"
 
 ---
 
 apiVersion: apps/v1
 Kind: Deployment
 metadata:
-  name: catalogue
+  name: shipping
   namespace: roboshop
   labels:
     project: roboshop
     tier: backend
-    component: catalogue
+    component: shipping
   spec:
     replicas: 1
     selector:
       matchLabels:
         project: roboshop
         tier: backend
-        component: catalogue   
+        component: shipping   
 
     template:
       metadata:
         labels:
           project: roboshop
           tier: backend
-          component: catalogue   
+          component: shipping   
       spec:
         containers:
-        - name: catalogue
-          image: ayyappavedavyas/catalogue:1.0.0
+        - name: shipping
+          image: ayyappavedavyas/shipping:1.0.0
           imagePullPolicy: Always
           
           resources:
             requests:
-              cpu: "100Mi"
-              memory: "128Mi"
+              cpu: "150Mi"
+              memory: "256Mi"
             limits:
-              cpu: "100Mi"
-              memory: "128Mi"
+              cpu: "150Mi"
+              memory: "256Mi"
 
           readinessProbe:
             tcpSocket:
@@ -59,6 +59,12 @@ metadata:
             failureThreshold: 3
             periodSeconds: 10
             intialDelaySeconds: 15
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10  
           livenessProbe:
             httpGet:
               path: /health
@@ -68,24 +74,24 @@ metadata:
 
           envFrom:
           - configMapRef: 
-            name: catalogue
+            name: shipping
 
 ---
 # cluster service
 apiVersion: apps/v1
 Kind: Service
 metadata:
-  name: catalogue
+  name: shipping
   namespace: roboshop
   labels:
     project: roboshop
     tier: backend
-    component: catalogue    
+    component: shipping    
 spec:
   selector: 
     project: roboshop
     tier: backend
-    component: catalogue
+    component: shipping
   ports:
   - protocol: TCP
     port: 8080 # service port

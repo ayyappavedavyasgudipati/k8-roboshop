@@ -1,45 +1,50 @@
 apiVersion: apps/v1
 Kind: ConfigMap
 metadata:
-  name: catalogue
+  name: payment
   namespace: roboshop
   labels:
     project: roboshop
     tier: backend
-    component: catalogue
+    component: payment
 data:
-  MONGO: "true"
-  MONGO_URL: "mongodb://mongodb:27017/catalogue"
+  CART_HOST: "cart"
+  CART_PORT: "8080"
+  USER_HOST: "user"
+  USER_PORT: "8080"
+  AMQP_HOST: "rabbitmq"
+  AMQP_USER: "roboshop"
+  AMQP_PASS: "roboshop123"
 
 ---
 
 apiVersion: apps/v1
 Kind: Deployment
 metadata:
-  name: catalogue
+  name: payment
   namespace: roboshop
   labels:
     project: roboshop
     tier: backend
-    component: catalogue
+    component: payment
   spec:
     replicas: 1
     selector:
       matchLabels:
         project: roboshop
         tier: backend
-        component: catalogue   
+        component: payment   
 
     template:
       metadata:
         labels:
           project: roboshop
           tier: backend
-          component: catalogue   
+          component: payment   
       spec:
         containers:
-        - name: catalogue
-          image: ayyappavedavyas/catalogue:1.0.0
+        - name: payment
+          image: ayyappavedavyas/payment:1.0.0
           imagePullPolicy: Always
           
           resources:
@@ -58,7 +63,7 @@ metadata:
             #   port: 8080
             failureThreshold: 3
             periodSeconds: 10
-            intialDelaySeconds: 15
+            intialDelaySeconds: 15 
           livenessProbe:
             httpGet:
               path: /health
@@ -68,24 +73,24 @@ metadata:
 
           envFrom:
           - configMapRef: 
-            name: catalogue
+            name: payment
 
 ---
 # cluster service
 apiVersion: apps/v1
 Kind: Service
 metadata:
-  name: catalogue
+  name: payment
   namespace: roboshop
   labels:
     project: roboshop
     tier: backend
-    component: catalogue    
+    component: payment    
 spec:
   selector: 
     project: roboshop
     tier: backend
-    component: catalogue
+    component: payment
   ports:
   - protocol: TCP
     port: 8080 # service port
