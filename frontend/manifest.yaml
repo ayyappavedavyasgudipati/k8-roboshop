@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-Kind: ConfigMap
+apiVersion: v1
+kind: ConfigMap
 metadata:
   name: frontend
   namespace: roboshop
@@ -75,7 +75,7 @@ data:
 ---
 
 apiVersion: apps/v1
-Kind: Deployment
+kind: Deployment
 metadata:
   name: frontend
   namespace: roboshop
@@ -83,63 +83,64 @@ metadata:
     project: roboshop
     tier: frontend
     component: frontend
-  spec:
-    replicas: 1
-    selector:
-      matchLabels:
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: roboshop
+      tier: frontend
+      component: frontend   
+
+  template:
+    metadata:
+      labels:
         project: roboshop
         tier: frontend
         component: frontend   
+    spec:
+      volumes:
+      - name: nginx-config
+        configMap: 
+          name: frontend
+      containers:
+      - name: frontend
+        image: ayyappavedavyas/frontend:1.0.0
+        imagePullPolicy: Always
+        
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
 
-    template:
-      metadata:
-        labels:
-          project: roboshop
-          tier: frontend
-          component: frontend   
-      spec:
-        volumes:
+        readinessProbe:
+          tcpSocket:
+            port: 80
+          # httpGet:
+          #   path: /health
+          #   port: 8080
+          failureThreshold: 3
+          periodSeconds: 10
+          initialDelaySeconds: 15
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          failureThreshold: 3
+          periodSeconds: 10
+        volumeMounts:
         - name: nginx-config
-          configMap: frontend
-        containers:
-        - name: frontend
-          image: ayyappavedavyas/frontend:1.0.0
-          imagePullPolicy: Always
-          
-          resources:
-            requests:
-              cpu: "100Mi"
-              memory: "128Mi"
-            limits:
-              cpu: "100Mi"
-              memory: "128Mi"
-
-          readinessProbe:
-            tcpSocket:
-              port: 80
-            # httpGet:
-            #   path: /health
-            #   port: 8080
-            failureThreshold: 3
-            periodSeconds: 10
-            intialDelaySeconds: 15
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-            failureThreshold: 3
-            periodSeconds: 10
-          volumeMounts:
-          - name: nginx-config
-            mountPath: "/etc/nginx/nginx.conf"
-            subPath: nginx.conf
-            readOnly: true
+          mountPath: "/etc/nginx/nginx.conf"
+          subPath: nginx.conf
+          readOnly: true
           
 
 ---
 # cluster service
-apiVersion: apps/v1
-Kind: Service
+apiVersion: v1
+kind: Service
 metadata:
   name: frontend
   namespace: roboshop
