@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-Kind: ConfigMap
+apiVersion: v1
+kind: ConfigMap
 metadata:
   name: cart
   namespace: roboshop
@@ -15,7 +15,7 @@ data:
 ---
 
 apiVersion: apps/v1
-Kind: Deployment
+kind: Deployment
 metadata:
   name: cart
   namespace: roboshop
@@ -23,58 +23,58 @@ metadata:
     project: roboshop
     tier: backend
     component: cart
-  spec:
-    replicas: 1
-    selector:
-      matchLabels:
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: roboshop
+      tier: backend
+      component: cart   
+
+  template:
+    metadata:
+      labels:
         project: roboshop
         tier: backend
         component: cart   
+    spec:
+      containers:
+      - name: cart
+        image: ayyappavedavyas/cart:1.0.0
+        imagePullPolicy: Always
+        
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
 
-    template:
-      metadata:
-        labels:
-          project: roboshop
-          tier: backend
-          component: cart   
-      spec:
-        containers:
-        - name: cart
-          image: ayyappavedavyas/cart:1.0.0
-          imagePullPolicy: Always
-          
-          resources:
-            requests:
-              cpu: "100Mi"
-              memory: "128Mi"
-            limits:
-              cpu: "100Mi"
-              memory: "128Mi"
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          # httpGet:
+          #   path: /health
+          #   port: 8080
+          failureThreshold: 3
+          periodSeconds: 10
+          initialDelaySeconds: 15
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          failureThreshold: 3
+          periodSeconds: 10
 
-          readinessProbe:
-            tcpSocket:
-              port: 8080
-            # httpGet:
-            #   path: /health
-            #   port: 8080
-            failureThreshold: 3
-            periodSeconds: 10
-            intialDelaySeconds: 15
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            failureThreshold: 3
-            periodSeconds: 10
-
-          envFrom:
-          - configMapRef: 
+        envFrom:
+        - configMapRef: 
             name: cart
 
 ---
 # cluster service
-apiVersion: apps/v1
-Kind: Service
+apiVersion: v1
+kind: Service
 metadata:
   name: cart
   namespace: roboshop

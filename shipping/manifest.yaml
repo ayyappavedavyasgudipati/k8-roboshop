@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-Kind: ConfigMap
+apiVersion: v1
+kind: ConfigMap
 metadata:
   name: shipping
   namespace: roboshop
@@ -22,64 +22,64 @@ metadata:
     project: roboshop
     tier: backend
     component: shipping
-  spec:
-    replicas: 1
-    selector:
-      matchLabels:
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: roboshop
+      tier: backend
+      component: shipping   
+
+  template:
+    metadata:
+      labels:
         project: roboshop
         tier: backend
         component: shipping   
+    spec:
+      containers:
+      - name: shipping
+        image: ayyappavedavyas/shipping:1.0.0
+        imagePullPolicy: Always
+        
+        resources:
+          requests:
+            cpu: "150m"
+            memory: "256Mi"
+          limits:
+            cpu: "150m"
+            memory: "256Mi"
 
-    template:
-      metadata:
-        labels:
-          project: roboshop
-          tier: backend
-          component: shipping   
-      spec:
-        containers:
-        - name: shipping
-          image: ayyappavedavyas/shipping:1.0.0
-          imagePullPolicy: Always
-          
-          resources:
-            requests:
-              cpu: "150Mi"
-              memory: "256Mi"
-            limits:
-              cpu: "150Mi"
-              memory: "256Mi"
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          # httpGet:
+          #   path: /health
+          #   port: 8080
+          failureThreshold: 3
+          periodSeconds: 10
+          initialDelaySeconds: 15
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          failureThreshold: 30
+          periodSeconds: 10  
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          failureThreshold: 3
+          periodSeconds: 10
 
-          readinessProbe:
-            tcpSocket:
-              port: 8080
-            # httpGet:
-            #   path: /health
-            #   port: 8080
-            failureThreshold: 3
-            periodSeconds: 10
-            intialDelaySeconds: 15
-          startupProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            failureThreshold: 30
-            periodSeconds: 10  
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            failureThreshold: 3
-            periodSeconds: 10
-
-          envFrom:
-          - configMapRef: 
+        envFrom:
+        - configMapRef: 
             name: shipping
 
 ---
 # cluster service
-apiVersion: apps/v1
-Kind: Service
+apiVersion: v1
+kind: Service
 metadata:
   name: shipping
   namespace: roboshop
