@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-Kind: ConfigMap
+kind: ConfigMap
 metadata:
   name: rabbitmq
   namespace: roboshop
