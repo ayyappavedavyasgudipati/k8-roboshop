@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: mongodb
-        image: ayyappavedavyas/mmongodb:1.0.0    
+        image: ayyappavedavyas/mongodb:1.0.0    
         imagePullPolicy: Always
 
 ---
