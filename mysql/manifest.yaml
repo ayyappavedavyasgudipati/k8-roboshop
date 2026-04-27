@@ -28,6 +28,8 @@ spec:
         image: ayyappavedavyas/mysql:1.0.0    
         imagePullPolicy: Always
 
+---
+
 apiVersion: v1
 kind: Service
 metadata:
